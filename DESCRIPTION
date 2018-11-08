@@ -2,7 +2,7 @@ Package: synoptReg
 Type: Package
 Title: Synoptic Climate Classification and Spatial Regionalization of
         Environmental Data
-Version: 0.1.0
+Version: 0.2.0
 Depends: R (>= 2.10)
 Author: Marc Lemus-Canovas
 Maintainer: Marc Lemus-Canovas <mlemus@ub.edu>
@@ -14,6 +14,6 @@ LazyData: true
 Imports: ncdf4, zoo, fields, raster, maps
 NeedsCompilation: no
 RoxygenNote: 6.1.0
-Packaged: 2018-09-28 12:01:52 UTC; Marc
+Packaged: 2018-10-24 20:59:46 UTC; knovas94
 Repository: CRAN
-Date/Publication: 2018-10-02 18:00:02 UTC
+Date/Publication: 2018-11-08 07:10:02 UTC
