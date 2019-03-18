@@ -30,8 +30,8 @@ This function converts the dataframe of the environmental data based on the syno
 # Load data (precp_grid)
 data(precp_grid)
 # Converting our data, but without modifying time period
-smode_mslp <- tidy_cuttime_nc(mslp, only_convert = TRUE)
-precp_data <- tidy_cuttime_nc(precp_grid, only_convert = TRUE)
+smode_mslp <- tidy_cuttime_nc(mslp)
+precp_data <- tidy_cuttime_nc(precp_grid)
 # classification performance
 smode_clas <- synoptclas(smode_mslp$smode_data, ncomp = 6)
 # convert all the precipitation maps based on CT to a raster stack

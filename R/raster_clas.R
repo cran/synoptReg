@@ -12,7 +12,7 @@
 #' # Load data (mslp)
 #' data(mslp)
 #' # Converting our data, but without modifying time period
-#' smode_mslp <- tidy_cuttime_nc(mslp, only_convert = TRUE)
+#' smode_mslp <- tidy_cuttime_nc(mslp)
 #' # classification performance
 #' smode_clas <- synoptclas(smode_mslp$smode_data, ncomp = 6)
 #' # convert all the precipitation maps based on CT to a raster stack
@@ -29,7 +29,7 @@ raster_clas <- function(longitude, latitude, grouped_data) {
   for (ii in 1:length(unique(grouped_data$CT))) {
     CT <- subset(grouped_data, CT == ii)
     CT <- CT[, -c(1:2)]
-    CT <- colMeans(CT)/100
+    CT <- colMeans(CT)
     mean_ct[[ii]] <- CT
   }
 

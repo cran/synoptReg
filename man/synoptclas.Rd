@@ -40,7 +40,7 @@ method without iterations.
 # Load data (mslp)
 data(mslp)
 # Converting our data into a S-mode, but without modifying time period
-smode_mslp <- tidy_cuttime_nc(mslp, only_convert = TRUE)
+smode_mslp <- tidy_cuttime_nc(mslp)
 # classification performance
 smode_clas <- synoptclas(smode_mslp$smode_data, ncomp = 6)
 
