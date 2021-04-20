@@ -3,9 +3,12 @@
 #' @description Calculates the classification of the main weather types
 #'              for the 16-points defined in \code{get_lamb_points}. Wind-flow characteristics
 #'              are computed for the daily pressure field according to the rules proposed by the original
-#'              Jenkinson and Collison classification (see Jenkin-son and Collison, 1977, Jones et al. 1993, Jones et al. 2016).
+#'              Jenkinson and Collison classification (see Jenkinson and Collison, 1977; Jones et al., 2013) (1), and 
+#'              to the rules proposed by Trigo and DaCamara, 2000 (2). 
 #' @param points  16 point pair of coordinates obtained from \code{get_lamb_points}.
 #' @param mslp  Mean Sea Level pressure gridded data.
+#' @param U Logical. If T, Jones et al. 2013 approach is applied, maintaining the U-type in the classification. If F, U is removed as detailed in Trigo and DaCamara, 2000.
+#' @param thr threshold used for Unclassified days (total shear vorticity and total flow, respectively). Default c(6,6).
 #' 
 #' @return A list with: \itemize{
 #'    \item{A data.frame containing the dates and the weather types.}
@@ -25,6 +28,11 @@
 #' \emph{Lamb weather types derived from Reanalysis products}
 #' Int. J. Climatol. 33: 1129–1139.
 #' }
+#' 
+#' Trigo, R., DaCamara C. (2000)
+#' \emph{Circulation weather types and their impact on the precipitation regime in Portugal}
+#' Int. J. Climatol. 20: 1559-1581.
+#' 
 #' @seealso  \code{\link{get_lamb_points}}
 #' 
 #' @examples
@@ -33,16 +41,16 @@
 #' points <- get_lamb_points(x = 5,y = 40)
 #' lamb_clas(points = points, mslp = mslp)
 #'
-#' @importFrom tidyr pivot_wider pivot_longer 
+#' @importFrom tidyr pivot_wider pivot_longer separate
 #'
 #' @export
 
 
-lamb_clas <- function(points,mslp){
+lamb_clas <- function(points,mslp, U = FALSE, thr = c(6,6)){
   
-  var <- vars_lamb(points,mslp)
+  var <- vars_lamb(points,mslp,U)
   
-  WT <- apply(var,1,lamb_wt)
+  WT <- apply(var,1,lamb_wt,U,thr)
   
   # clas
   time <- unique(mslp$time)
@@ -59,14 +67,15 @@ lamb_clas <- function(points,mslp){
   
 }
 
-vars_lamb <- function(points, mslp) {
+
+vars_lamb <- function(points, mslp,U) {
   
   pp <- inner_join(points, mslp, by = c("lon","lat")) %>%
     select(c(.data$label,.data$time,.data$value)) %>% 
     pivot_wider(names_from = .data$label,values_from = .data$value) 
-  
   x<- pp
   
+  if(U == F){ #Trigo & DaCamara, 2000
   SF <- 1.305*(0.25*(x$P5+2*x$P9+x$P13)-0.25*(x$P4+2*x$P8+x$P12))
   WF <- (0.5*(x$P12+x$P13)-0.5*(x$P4+x$P5))
   D <- atan(WF/SF)*(360/(2*pi))
@@ -74,12 +83,23 @@ vars_lamb <- function(points, mslp) {
   ZW <- 1.12*(0.5*(x$P15+x$P16)-0.5*(x$P8+x$P9)-0.91*(0.5*(x$P8+x$P9)-0.5*(x$P1+x$P2)))
   FF <- (SF^2+WF^2)^(1/2)
   Z <- ZS+ZW
+  
+  } else { # Jones et al., 1993
+    SF <- 1.74*(0.25*(x$P5+2*x$P9+x$P13)-0.25*(x$P4+2*x$P8+x$P12))
+    WF <- 0.5*(x$P12+x$P13)-0.5*(x$P4+x$P5)
+    D <- atan(WF/SF)*(360/(2*pi))
+    ZS <- 1.52*(0.25*(x$P6+2*x$P10+x$P14)-0.25*(x$P5+2*x$P9+x$P3)-0.25*(x$P4+2*x$P8+x$P12)+0.25*(x$P3+2*x$P7+x$P11))
+    ZW <- 1.07*(0.5*(x$P15+x$P16)-0.5*(x$P8+x$P9)-0.95*(0.5*(x$P8+x$P9)-0.5*(x$P1+x$P2)))
+    FF <- (SF^2+WF^2)^(1/2)
+    Z <- ZS+ZW
+    
+  }
   var <- data.frame(SF,WF,D,ZS,ZW,FF,Z)
 }  
 
 
 
-lamb_wt <- function(x){
+lamb_wt <- function(x,U,thr){
   
   dir <- seq(22.5,360,45)
   lev_dir <- levels(cut(seq(0,360,1),seq(22.5,360,45)))
@@ -121,8 +141,8 @@ lamb_wt <- function(x){
     
   }
   
-  
-  if(abs(x["Z"])<4.8 & x["FF"]<4.2) out <- "U"
+  # Only works when U = TRUE. 
+  if(U!= FALSE & abs(x["Z"])<thr[1] & x["FF"]<thr[2]) out <- "U"
   
   
   ifelse(!is.na(out),return(out),return(NA))
