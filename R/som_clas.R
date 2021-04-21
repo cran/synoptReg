@@ -1,4 +1,4 @@
-#' Self-Organized Map classification
+#' Self-Organizing Maps classification
 #'
 #' \code{som_clas} allows to perform a SOM synoptic classification 
 #'
@@ -27,7 +27,7 @@
 #'              name_vars = c("z500"))
 #'
 #' # SOM classification
-#' som_cl <- som_clas(z500_tidy, xdim = 4,ydim = 4, iter = 200)
+#' som_cl <- som_clas(z500_tidy, xdim = 4, ydim = 4, iter = 200)
 #'
 #'
 #' @references {

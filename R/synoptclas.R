@@ -40,7 +40,7 @@
 #'              name_vars = c("mslp","z500"))
 #'
 #' # S-mode classification
-#' smode_cl <- synoptclas(atm_data1, ncomp = 4)
+#' smode_cl <- synoptclas(atm_data1, ncomp = 6)
 #'
 #' # Time subset using a vector of dates of interest
 #' dates_int <- c("2000-01-25","2000-04-01","2000-07-14","2001-05-08","2002-12-20")
